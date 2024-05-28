@@ -1,0 +1,143 @@
+<app-cabeceratitulos [titulo]="'Bitacoras'" [descripcion]="'Bitacoras de usuarios'" [icono]="'list'" [opcion]="'bitacoras'">
+</app-cabeceratitulos>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <div class="input-group justify-content-end">
+                        <div class="input-group-prepend">
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bars"></i> Opciones</button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <button class="dropdown-item" (click)="fgeneraPDF()" data-toggle="tooltip" data-placement="top" title="Generar reporte en formato PDF de la bitacora de los usuarios"><i class="fa fa-file-pdf-o"></i> Genera PDF</button>
+                                    <button class="dropdown-item" (click)="fgeneraXLS()" data-toggle="tooltip" data-placement="top" title="Generar reporte en formato Excel de la bitacora de los usuarios"><i class="fa fa-file-excel-o"></i> Genera Excel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input type="text" class="form-control mr-1" #buscar placeholder="Ingrese bitacora o usuario a buscar..." (keyup.enter)="fbuscar(buscar.value)"/>
+                        <span class="input-group-prepend">
+                            <button class="btn btn-primary mr-1" (click)="fbuscar(buscar.value)" data-toggle="tooltip" data-placement="top" title="Buscar bitacora">
+                                <i class="fa fa-search"></i> Buscar
+                            </button>
+                            <button class="btn btn-dark" (click)="limpiar()" (click)="buscar.value=''" data-toggle="tooltip" data-placement="top" title="Limpiar criterios de búsqueda">
+                                <i class="fa fa-list"></i> Limpiar
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-1" *ngIf="total > cantidad">
+                    <ngb-pagination class="d-flex justify-content-end align-items-baseline pagination-rounded" [collectionSize]="total" [(page)]="pagina" [maxSize]="2" [rotate]="false" [ellipses]="false" [pageSize]="cantidad" [boundaryLinks]="true" (pageChange)="mostrarMas($event)" size="sm"></ngb-pagination>
+                </div>
+            </div>
+
+            <div class="table-responsive" *ngIf="datos?.length">
+                <p class="text-right" *ngIf="total==1">Total: <b>{{total}} registro</b>&nbsp;
+                    <select #cantidad (change)="fcambiarcantidad(cantidad.value)">
+                        <option [value]="5">5</option>
+                        <option [value]="10" selected>10</option>
+                        <option [value]="20">20</option>
+                    </select>
+                </p>
+                <p class="text-right" *ngIf="total>1">Total: <b>{{total}} registros</b>&nbsp;
+                    <select #cantidad (change)="fcambiarcantidad(cantidad.value)">
+                        <option [value]="5">5</option>
+                        <option [value]="10" selected>10</option>
+                        <option [value]="20">20</option>
+                    </select>
+                </p>
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Nro.</th>
+                            <th class="text-center">Usuario</th>
+                            <th class="text-center">Tabla</th>
+                            <th class="text-center">Identificador</th>
+                            <th class="text-center">Acción</th>
+                            <th class="text-center">Bitacora</th>
+                            <th class="text-center">Fecha</th>
+                            <th class="text-center">Hora</th>
+                            <th class="text-center">Operaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let _item of datos; let i = index ">
+                            <td class="text-center">{{i+1}}</td>
+                            <td class="text-left">{{ _item.usuario}}</td>
+                            <td class="text-left">{{ _item.tabla}}</td>
+                            <td class="text-center">{{ _item.id}}</td>
+                            <td class="text-left">{{ _item.accion}}</td>
+                            <td class="text-left">{{ _item.bitacora}}</td>
+                            <td class="text-center">{{ _item.fechabitacora | date: 'dd/MM/yyyy'}}</td>
+                            <td class="text-center">{{ _item.horabitacora | slice : 0:8}}</td>
+                            <td class="text-center">
+                                <button class="btn btn-success btn-sm" (click)="fmostrar(_item.idbitacora, ab)" data-toggle="tooltip" data-placement="top" title="Mostrar Bitacora del usuario {{_item.usuario}}"><i class="fa fa-eye"></i> Mostrar </button>
+                            </td>
+                        </tr>
+
+                        <tr *ngIf="total > cantidad">
+                            <td colspan="9">
+                                <ngb-pagination class="d-flex justify-content-center pagination-rounded" [collectionSize]="total" [(page)]="pagina" [maxSize]="10" [rotate]="false" [ellipses]="false" [pageSize]="cantidad" [boundaryLinks]="true" (pageChange)="mostrarMas($event)"></ngb-pagination>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-responsive" *ngIf="!datos?.length">
+                <h1 class="text-center"><b>Sin datos</b></h1>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<ng-template #ab>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left"><i class="fa fa-eye"></i> {{ estado }} {{entidad}}</h4>
+    </div>
+
+    <div class="modal-body">
+
+        <div class="form-row">
+
+            <div class="form-group col-md-3">
+                <label><b>Usuario</b></label>
+                <input type="text" class="form-control" value="{{dato.usuario}}" disabled/>
+            </div>
+            <div class="form-group col-md-3">
+                <label><b>Fecha</b></label>
+                <input type="text" class="form-control" value="{{dato.fechabitacora | date: 'dd/MM/yyyy'}}" disabled/>
+            </div>
+            <div class="form-group col-md-3">
+                <label><b>Hora</b></label>
+                <input type="text" class="form-control" value="{{dato.horabitacora}}" disabled/>
+            </div>
+            <div class="form-group col-md-3">
+                <label><b>Acción</b></label>
+                <input type="text" class="form-control" value="{{dato.accion}}" disabled/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label><b>Bitacora</b></label>
+            <textarea class="form-control" rows="5" disabled>{{dato.bitacora}}</textarea>
+        </div>
+
+        <div class="form-group text-center">
+            <button type="button" class="btn btn-info" (click)="fcerrar()" data-toggle="tooltip" data-placement="top" title="Cerrar Bitacora">
+                <i class="fa fa-times"></i> Cerrar
+            </button>
+        </div>
+
+    </div>
+
+</ng-template>

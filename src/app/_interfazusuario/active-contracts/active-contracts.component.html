@@ -1,0 +1,40 @@
+<app-cabeceratitulos [titulo]="'Contratos Activos'" [descripcion]="'Altas y Modificaciones de Customers'" [icono]="'list'" [opcion]="'Customers'">
+</app-cabeceratitulos>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+            <div class="table-responsive">
+              <div class="container">
+                <h1>Lista de Contratos</h1>
+                <div class="row">
+                  <div class="col-md-6" *ngFor="let dato of datos">
+                    <div class="card mb-3">
+                      <div class="card-header">
+                        <h5 class="card-title">{{ dato.customer.name }} {{ dato.customer.lastname }}</h5>
+                        <p class="card-text">Phone: {{ dato.customer.phone }}</p>
+                      </div>
+                      <div class="card-body">
+                        <ul class="list-group">
+                          <li class="list-group-item custom-list-item" *ngFor="let contract of dato.contracts">
+                            <h6 class="card-subtitle mb-2 text-muted">{{ contract.contractType }}</h6>
+                            <p class="card-text">Propiedad: {{ contract.property }}</p>
+                            <p class="card-text">Inicio: {{ contract.startDate | date }}</p>
+                            <p class="card-text">Fin: {{ contract.endDate | date }}</p>
+                            <p class="card-text">Terminos: {{ contract.terms }}</p>
+                            <p class="card-text">Precio: ${{ contract.price }}</p>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div class="table-responsive" *ngIf="!datos?.length">
+                <h1 class="text-center"><b>Sin datos</b></h1>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,207 @@
+<app-cabeceratitulos [titulo]="'Customers'" [descripcion]="'Altas y Modificaciones de Customers'" [icono]="'list'" [opcion]="'Customers'">
+</app-cabeceratitulos>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <div class="input-group justify-content-end">
+                        <div class="input-group-prepend">
+                            <button class="btn btn-primary mr-2" type="button" (click)="fadicionar(ab)" data-toggle="tooltip" data-placement="top" title="Adicionar dato"><i class="fa fa-plus"></i> Agregar </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input type="text" class="form-control mr-1" #buscar placeholder="Ingrese dato a buscar..." (keyup.enter)="fbuscar(buscar.value)"/>
+                        <span class="input-group-prepend">
+                            <button class="btn btn-primary mr-1" (click)="fbuscar(buscar.value)" data-toggle="tooltip" data-placement="top" title="Buscar Customer">
+                                <i class="fa fa-search"></i> Buscar
+                            </button>
+                            <button class="btn btn-dark" (click)="limpiar()" (click)="buscar.value=''" data-toggle="tooltip" data-placement="top" title="Limpiar criterios de búsqueda">
+                                <i class="fa fa-list"></i> Limpiar
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-1" *ngIf="total > cantidad">
+                    <ngb-pagination class="d-flex justify-content-end align-items-baseline pagination-rounded" [collectionSize]="total" [(page)]="pagina" [maxSize]="2" [rotate]="false" [ellipses]="false" [pageSize]="cantidad" [boundaryLinks]="true" (pageChange)="mostrarMas($event)" size="sm"></ngb-pagination>
+                </div>
+            </div>
+
+            <div class="table-responsive" *ngIf="datos?.length">
+                <p class="text-right" *ngIf="total==1">Total: <b>{{total}} registro</b>&nbsp;
+                    <select #cantidad (change)="fcambiarcantidad(cantidad.value)">
+                        <option [value]="5">5</option>
+                        <option [value]="10" selected>10</option>
+                        <option [value]="20">20</option>
+                    </select>
+                </p>
+                <p class="text-right" *ngIf="total>1">Total: <b>{{total}} registros</b>&nbsp;
+                    <select #cantidad (change)="fcambiarcantidad(cantidad.value)">
+                        <option [value]="5">5</option>
+                        <option [value]="10" selected>10</option>
+                        <option [value]="20">20</option>
+                    </select>
+                </p>
+                <table class="table table-sm table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Nro.</th>
+                            <th class="text-center">Tipo de Propiedad</th>
+                            <th class="text-center">Direccion</th>
+                            <th class="text-center">Ciudad</th>
+                            <th class="text-center">Dormitorios</th>
+                            <th class="text-center">Baños</th>
+                            <th class="text-center">Precio</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Abierto para</th>
+                            <th class="text-center">Operaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let _item of datos; let i = index ">
+                            <td class="text-center">{{i+1}}</td>
+                            <td class="text-left">{{ _item.propertyType}}</td>
+                            <td class="text-left">{{ _item.address}}</td>
+                            <td class="text-left">{{ _item.city}}</td>
+                            <td class="text-left">{{ _item.bedrooms}}</td>
+                            <td class="text-left">{{ _item.bathrooms}}</td>
+                            <td class="text-left">{{ _item.price}}</td>
+                            <td class="text-left">{{ _item.status}}</td>
+                            <td class="text-left">{{ _item.transactionType}}</td>
+                            <td class="text-center">
+                                <button class="btn btn-success btn-sm mr-2 mb-2" (click)="fmodificar(_item._id, ab)" data-toggle="tooltip" data-placement="top" title="Editar"><i class="fa fa-edit"></i> Editar</button>
+                                <button class="btn btn-danger btn-sm mr-2 mb-2" (click)="fborrar(_item._id)" data-toggle="tooltip" data-placement="top" title="Eliminar"><i class="fa fa-trash"></i> Editar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-responsive" *ngIf="!datos?.length">
+                <h1 class="text-center"><b>Sin datos</b></h1>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<ng-template #ab>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left"><i class="fa fa-edit"></i> {{ estado }} Customer</h4>
+    </div>
+    <div class="modal-body">
+        <p class="text-info">Todos los campos remarcados con * (Asterisco) son necesarios.</p>
+
+        <form [formGroup]="formulario" (ngSubmit)="faceptar()">
+
+            <div class="form-row">
+                <div class="form-group col-md-8">
+                    <label>Tipo de propiedad<span class="text-danger"><b>*</b></span></label>
+                    <input type="text" class="form-control" formControlName="propertyType" [class.is-invalid]="f.propertyType.errors && f.propertyType.touched" />
+                    <small *ngIf="f.propertyType.errors && f.propertyType.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label>Direccion <span class="text-danger"><b>*</b></span></label>
+                    <input type="text" class="form-control" formControlName="address" [class.is-invalid]="f.address.errors && f.address.touched"/>
+                    <small *ngIf="f.address.errors && f.address.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-7">
+                    <label>Ciudad </label>
+                    <input type="text" class="form-control" formControlName="city" [class.is-invalid]="f.city.errors && f.city.touched"/>
+                    <small *ngIf="f.city.errors && f.city.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+
+                <div class="form-group col-md-5">
+                    <label>Pais <span class="text-danger"><b>*</b></span></label>
+                    <input type="text" class="form-control" formControlName="country" [class.is-invalid]="f.country.errors && f.country.touched"/>
+                    <small *ngIf="f.country.errors && f.country.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                  <label>Area en Mts2 </label>
+                  <input type="number" class="form-control" formControlName="totalArea" [class.is-invalid]="f.totalArea.errors && f.totalArea.touched"/>
+                  <small *ngIf="f.totalArea.errors && f.totalArea.touched" class="text-danger">
+                      El dato es obligatorio
+                  </small>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Dormitorios </label>
+                <input type="number" class="form-control" formControlName="bedrooms" [class.is-invalid]="f.bedrooms.errors && f.addrbedroomsess.touched"/>
+                <small *ngIf="f.bedrooms.errors && f.bedrooms.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Baños </label>
+                <input type="number" class="form-control" formControlName="bathrooms" [class.is-invalid]="f.bathrooms.errors && f.bathrooms.touched"/>
+                <small *ngIf="f.bathrooms.errors && f.bathrooms.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Descripcion </label>
+                <input type="text" class="form-control" formControlName="description" [class.is-invalid]="f.description.errors && f.description.touched"/>
+                <small *ngIf="f.description.errors && f.description.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Precio </label>
+                <input type="number" class="form-control" formControlName="price" [class.is-invalid]="f.price.errors && f.price.touched"/>
+                <small *ngIf="f.price.errors && f.price.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Estado </label>
+                <input type="text" class="form-control" formControlName="status" [class.is-invalid]="f.status.errors && f.status.touched"/>
+                <small *ngIf="f.status.errors && f.status.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Año de construccion </label>
+                <input type="number" class="form-control" formControlName="yearBuilt" [class.is-invalid]="f.yearBuilt.errors && f.yearBuilt.touched"/>
+                <small *ngIf="f.yearBuilt.errors && f.yearBuilt.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Tipo de Transaccion </label>
+                <input type="text" class="form-control" formControlName="transactionType" [class.is-invalid]="f.transactionType.errors && f.transactionType.touched"/>
+                <small *ngIf="f.transactionType.errors && f.transactionType.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+              </div>
+          </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-success m-2" [disabled]="!formulario.valid"  data-toggle="tooltip" data-placement="top" title="Grabar dato de Customer">
+                    <i class="fa fa-save"></i> Grabar
+                </button>
+                <button type="button" class="btn btn-danger" (click)="fcancelar()" data-toggle="tooltip" data-placement="top" title="Cancelar registro">
+                    <i class="fa fa-times"></i> Cancelar
+                </button>
+            </div>
+
+        </form>
+    </div>
+</ng-template>

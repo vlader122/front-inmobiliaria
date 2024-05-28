@@ -1,0 +1,181 @@
+<app-cabeceratitulos [titulo]="'Enlaces'" [descripcion]="'Enlaces del sistema'" [icono]="'link'" [opcion]="'Enlaces'">
+</app-cabeceratitulos>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile text-center">
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <div class="input-group justify-content-end">
+                        <div class="input-group-prepend">
+                            <button class="btn btn-primary mr-2" type="button" (click)="fadicionar(ab)"><i class="fa fa-plus"></i> Agregar </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input type="text" class="form-control mr-2" #buscar placeholder="Ingrese enlace a buscar..." (keyup.enter)="fbuscar(buscar.value)"/>
+                        <span class="input-group-prepend">
+                            <button class="btn btn-primary mr-2" (click)="fbuscar(buscar.value)" data-toggle="tooltip" data-placement="top" title="Buscar dato">
+                                <i class="fa fa-search"></i> Buscar
+                            </button>
+                            <button class="btn btn-dark" (click)="limpiar()" (click)="buscar.value=''" data-toggle="tooltip" data-placement="top" title="Limpiar todo">
+                                <i class="fa fa-list"></i> Limpiar
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-1" *ngIf="total > cantidad">
+                    <ngb-pagination class="d-flex justify-content-end align-items-baseline pagination-rounded" [collectionSize]="total" [(page)]="pagina" [maxSize]="2" [rotate]="false" [ellipses]="false" [pageSize]="cantidad" [boundaryLinks]="true" (pageChange)="mostrarMas($event)" size="sm"></ngb-pagination>
+                </div>
+            </div>
+
+            <div class="table-responsive" *ngIf="datos?.length">
+                <p class="text-right" *ngIf="total==1">Total: <b>{{total}} registro</b>&nbsp;
+                    <select #cantidad (change)="fcambiarcantidad(cantidad.value)">
+                        <option [value]="5">5</option>
+                        <option [value]="10" selected>10</option>
+                        <option [value]="20">20</option>
+                    </select>
+                </p>
+                <p class="text-right" *ngIf="total>1">Total: <b>{{total}} registros</b>&nbsp;
+                    <select #cantidad (change)="fcambiarcantidad(cantidad.value)">
+                        <option [value]="5">5</option>
+                        <option [value]="10" selected>10</option>
+                        <option [value]="20">20</option>
+                    </select>
+                </p>
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-center align-middle">Nro.</th>
+                            <th class="text-center align-middle">Enlace</th>
+                            <th class="text-center align-middle">Ruta</th>
+                            <th class="text-center align-middle">Icono</th>
+                            <th class="text-center align-middle">Orden</th>
+                            <th class="text-center align-middle">Roles</th>
+                            <th class="text-center align-middle">Operaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let _item of datos; let i = index ">
+                            <td class="text-center">{{i+1}}</td>
+                            <td class="text-left">
+                                <span *ngIf="_item.idenlacepadre==0"><b>{{_item.enlace}}</b></span>
+                                <span *ngIf="_item.idenlacepadre>0">{{_item.enlacepadre}} -> {{_item.enlace}}</span>
+                            </td>
+                            <td class="text-left">
+                                <span *ngIf="_item.idenlacepadre==0"></span>
+                                <span *ngIf="_item.idenlacepadre>0">{{_item.ruta}}</span>
+                            </td>
+                            <td class="text-left"><i class="{{_item.iconoenlace}}"></i></td>
+                            <td class="text-left">{{_item.orden}}</td>
+                            <td class="text-center">
+                                <ul class="list-inline">
+                                    <li *ngFor="let _rol of _item.roles" class="list-inline-item">
+                                        <span class="badge badge-primary">{{_rol | slice:5:50}}</span>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-success btn-sm mr-2 mb-2" (click)="fmodificar(_item.idenlace, ab)" data-toggle="tooltip" data-placement="top" title="Editar dato"><i class="fa fa-edit"></i> Editar</button>
+                            </td>
+                        </tr>
+
+                        <tr *ngIf="total > cantidad">
+                            <td colspan="7">
+                                <ngb-pagination class="d-flex justify-content-center pagination-rounded" [collectionSize]="total" [(page)]="pagina" [maxSize]="10" [rotate]="false" [ellipses]="false" [pageSize]="cantidad" [boundaryLinks]="true" (pageChange)="mostrarMas($event)"></ngb-pagination>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-responsive" *ngIf="!datos?.length">
+                <h1 class="text-center"><b>Sin datos</b></h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<ng-template #ab>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left"><i class="fa fa-edit"></i> {{ estado }} {{entidad}}</h4>
+    </div>
+
+    <div class="modal-body">
+        <p class="text-info">Estimado usuario Los campos remarcados con * (Asterisco) son necesarios.</p>
+        <form [formGroup]="formulario" (ngSubmit)="faceptar()">
+            <hr>
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Enlace Principal <span class="text-danger"><b>*</b></span></label>
+                            <select class="form-control" formControlName="idenlacepadre" [class.is-invalid]="f.idenlacepadre.errors && f.idenlacepadre.touched">
+                                <option [value]="0">Principal</option>
+                                <option *ngFor="let _itemp of enlacesPrincipales" [value]="_itemp.idenlace">{{_itemp.enlace}}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Enlace <span class="text-danger"><b>*</b></span></label>
+                            <input type="text" class="form-control" formControlName="enlace" [class.is-invalid]="f.enlace.errors && f.enlace.touched" />
+                            <small *ngIf="f.enlace.errors && f.enlace.touched" class="text-danger">
+                                El dato es obligatorio
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label>Ruta <span class="text-danger"><b>*</b></span></label>
+                            <input type="text" class="form-control" formControlName="ruta" [class.is-invalid]="f.ruta.errors && f.ruta.touched" />
+                            <small *ngIf="f.ruta.errors && f.ruta.touched" class="text-danger">
+                                El dato es obligatorio
+                            </small>
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            <label>Icono Enlace <span class="text-danger"><b>* </b></span> <span><i class="{{iconoenlace.value}}"></i></span></label>
+                            <input type="text" class="form-control" #iconoenlace formControlName="iconoenlace" [class.is-invalid]="f.iconoenlace.errors && f.iconoenlace.touched" />
+                            <small *ngIf="f.iconoenlace.errors && f.iconoenlace.touched" class="text-danger">
+                                El dato es obligatorio
+                            </small>
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            <label>Orden <span class="text-danger"><b>*</b></span></label>
+                            <input type="number" class="form-control" formControlName="orden" [class.is-invalid]="f.orden.errors && f.orden.touched" />
+                            <small *ngIf="f.orden.errors && f.orden.touched" class="text-danger">
+                                El dato es obligatorio
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Roles <span class="text-danger"><b>*</b></span></label>
+                        <ng-select [multiple]="true" [(ngModel)]="dato.idroles" formControlName="idroles">
+                            <ng-option *ngFor="let _rol of roles" [value]="_rol.idrol">{{_rol.rol}}</ng-option>
+                        </ng-select>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-success m-2" [disabled]="!formulario.valid">
+                <i class="fa fa-save"></i> Grabar
+            </button>
+            <button type="button" class="btn btn-danger" (click)="fcancelar()">
+                <i class="fa fa-times"></i> Cancelar
+            </button>
+            </div>
+        </form>
+
+    </div>
+</ng-template>

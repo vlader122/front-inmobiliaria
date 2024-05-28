@@ -1,0 +1,166 @@
+<app-cabeceratitulos [titulo]="'Clientes'" [descripcion]="'Altas y Modificaciones de Customers'" [icono]="'list'" [opcion]="'Customers'">
+</app-cabeceratitulos>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <div class="input-group justify-content-end">
+                        <div class="input-group-prepend">
+                            <button class="btn btn-primary mr-2" type="button" (click)="fadicionar(ab)" data-toggle="tooltip" data-placement="top" title="Adicionar dato"><i class="fa fa-plus"></i> Agregar </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input type="text" class="form-control mr-1" #buscar placeholder="Ingrese dato a buscar..." (keyup.enter)="fbuscar(buscar.value)"/>
+                        <span class="input-group-prepend">
+                            <button class="btn btn-primary mr-1" (click)="fbuscar(buscar.value)" data-toggle="tooltip" data-placement="top" title="Buscar Customer">
+                                <i class="fa fa-search"></i> Buscar
+                            </button>
+                            <button class="btn btn-dark" (click)="limpiar()" (click)="buscar.value=''" data-toggle="tooltip" data-placement="top" title="Limpiar criterios de búsqueda">
+                                <i class="fa fa-list"></i> Limpiar
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-1" *ngIf="total > cantidad">
+                    <ngb-pagination class="d-flex justify-content-end align-items-baseline pagination-rounded" [collectionSize]="total" [(page)]="pagina" [maxSize]="2" [rotate]="false" [ellipses]="false" [pageSize]="cantidad" [boundaryLinks]="true" (pageChange)="mostrarMas($event)" size="sm"></ngb-pagination>
+                </div>
+            </div>
+
+            <div class="table-responsive" *ngIf="datos?.length">
+                <p class="text-right" *ngIf="total==1">Total: <b>{{total}} registro</b>&nbsp;
+                    <select #cantidad (change)="fcambiarcantidad(cantidad.value)">
+                        <option [value]="5">5</option>
+                        <option [value]="10" selected>10</option>
+                        <option [value]="20">20</option>
+                    </select>
+                </p>
+                <p class="text-right" *ngIf="total>1">Total: <b>{{total}} registros</b>&nbsp;
+                    <select #cantidad (change)="fcambiarcantidad(cantidad.value)">
+                        <option [value]="5">5</option>
+                        <option [value]="10" selected>10</option>
+                        <option [value]="20">20</option>
+                    </select>
+                </p>
+                <table class="table table-sm table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Nro.</th>
+                            <th class="text-center">Nombre Completo</th>
+                            <th class="text-center">CI</th>
+                            <th class="text-center">Direccion</th>
+                            <th class="text-center">Telefono</th>
+                            <th class="text-center">Operaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let _item of datos; let i = index ">
+                            <td class="text-center">{{i+1}}</td>
+                            <td class="text-left">{{ _item.name + " " + _item.lastname}}</td>
+                            <td class="text-left">{{ _item.ci}}</td>
+                            <td class="text-left">{{ _item.address}}</td>
+                            <td class="text-left">{{ _item.phone}}</td>
+                            <td class="text-center">
+                                <button class="btn btn-success btn-sm mr-2 mb-2" (click)="fmodificar(_item._id, ab)" data-toggle="tooltip" data-placement="top" title="Editar"><i class="fa fa-edit"></i> Editar</button>
+                                <button class="btn btn-danger btn-sm mr-2 mb-2" (click)="fborrar(_item._id)" data-toggle="tooltip" data-placement="top" title="Eliminar"><i class="fa fa-trash"></i> Editar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-responsive" *ngIf="!datos?.length">
+                <h1 class="text-center"><b>Sin datos</b></h1>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<ng-template #ab>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left"><i class="fa fa-edit"></i> {{ estado }} Customer</h4>
+    </div>
+    <div class="modal-body">
+        <p class="text-info">Todos los campos remarcados con * (Asterisco) son necesarios.</p>
+
+        <form [formGroup]="formulario" (ngSubmit)="faceptar()">
+
+            <div class="form-row">
+                <div class="form-group col-md-8">
+                    <label>Nombre<span class="text-danger"><b>*</b></span></label>
+                    <input type="text" class="form-control" formControlName="name" [class.is-invalid]="f.lastname.errors && f.lastname.touched" />
+                    <small *ngIf="f.lastname.errors && f.name.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label>Apellido <span class="text-danger"><b>*</b></span></label>
+                    <input type="text" class="form-control" formControlName="lastname" [class.is-invalid]="f.lastname.errors && f.lastname.touched"/>
+                    <small *ngIf="f.lastname.errors && f.lastname.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-7">
+                    <label>CI </label>
+                    <input type="text" class="form-control" formControlName="ci" [class.is-invalid]="f.ci.errors && f.ci.touched"/>
+                    <small *ngIf="f.ci.errors && f.ci.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+
+                <div class="form-group col-md-5">
+                    <label>Sexo <span class="text-danger"><b>*</b></span></label>
+                    <select name="" id="" class="form-control" formControlName="gender" [class.is-invalid]="f.gender.errors && f.gender.touched">
+                        <option value="Men">Masculino</option>
+                        <option value="Women">Femenino</option>
+                    </select>
+                    <small *ngIf="f.gender.errors && f.gender.touched" class="text-danger">
+                        El dato es obligatorio
+                    </small>
+                </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-7">
+                  <label>Fecha de nacimiento </label>
+                  <input type="date" class="form-control" formControlName="birth" [class.is-invalid]="f.birth.errors && f.birth.touched"/>
+                  <small *ngIf="f.birth.errors && f.birth.touched" class="text-danger">
+                      El dato es obligatorio
+                  </small>
+              </div>
+              <div class="form-group col-md-12">
+                <label>Direccion </label>
+                <input type="text" class="form-control" formControlName="address" [class.is-invalid]="f.address.errors && f.address.touched"/>
+                <small *ngIf="f.address.errors && f.address.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+              </div>
+              <div class="form-group col-md-7">
+                <label>Telefono </label>
+                <input type="text" class="form-control" formControlName="phone" [class.is-invalid]="f.phone.errors && f.phone.touched"/>
+                <small *ngIf="f.phone.errors && f.phone.touched" class="text-danger">
+                    El dato es obligatorio
+                </small>
+              </div>
+          </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-success m-2" [disabled]="!formulario.valid"  data-toggle="tooltip" data-placement="top" title="Grabar dato de Customer">
+                    <i class="fa fa-save"></i> Grabar
+                </button>
+                <button type="button" class="btn btn-danger" (click)="fcancelar()" data-toggle="tooltip" data-placement="top" title="Cancelar registro">
+                    <i class="fa fa-times"></i> Cancelar
+                </button>
+            </div>
+
+        </form>
+    </div>
+</ng-template>
